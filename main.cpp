@@ -3,19 +3,24 @@
 #include <string>
 
 int main() {
-    if (std::ifstream datei{"test.tar", std::ios::binary}) {
-        int buffersize = 512;
-        char *buffer;
+    std::ifstream datei("test.tar", std::ios::binary);
+    if(!datei)
+        std::cout << "Fehler beim Oeffnen der Datei" << std::endl;
 
-        datei.read(buffer, buffersize);
+    int buffersize = 512;
+    char* buffer = new char[512];
 
-
-        datei.close();
-
-        std::cout << buffer[0] << buffer[1] << std::endl;
+    datei.read(buffer, 512);
+    std::string filename{};
+    for (int i = 0; i <= 99; i++)
+    {
+        if (buffer[i]!= '\0')
+            filename.push_back(buffer[i]);
     }
+    std::cout << filename << std::endl;
 
-    else
-        std::cout << " Fehler ! " << std::endl;
+    std::string filename2(&buffer[0], 100);
+    std::cout << filename2 << std::endl;
+
     return 0;
 }
