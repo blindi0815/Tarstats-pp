@@ -8,9 +8,9 @@ int main() {
         std::cout << "Fehler beim Oeffnen der Datei" << std::endl;
 
     int buffersize = 512;
-    char* buffer = new char[512];
+    char* buffer = new char[buffersize];
 
-    datei.read(buffer, 512);
+    datei.read(buffer, buffersize);
     std::string filename{};
     for (int i = 0; i <= 99; i++)
     {
