@@ -7,19 +7,19 @@ int main() {
     if(!datei)
         std::cout << "Fehler beim Oeffnen der Datei" << std::endl;
 
-    int buffersize = 512;
-    char* buffer = new char[buffersize];
+    int headersize = 512;
+    char* headbuffer = new char[headersize];
 
-    datei.read(buffer, buffersize);
+    datei.read(headbuffer, headersize);
     std::string filename{};
     for (int i = 0; i <= 99; i++)
     {
-        if (buffer[i]!= '\0')
-            filename.push_back(buffer[i]);
+        if (headbuffer[i] != '\0')
+            filename.push_back(headbuffer[i]);
     }
     std::cout << filename << std::endl;
 
-    std::string filename2(&buffer[0], 100);
+    std::string filename2(&headbuffer[0], 100);
     std::cout << filename2 << std::endl;
 
     return 0;
