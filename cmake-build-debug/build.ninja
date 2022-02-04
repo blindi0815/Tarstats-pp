@@ -74,7 +74,7 @@ build cmake_object_order_depends_target_Tarstats__: phony || CMakeFiles/Tarstats
 
 build CMakeFiles/Tarstats__.dir/main.cpp.o: CXX_COMPILER__Tarstats___Debug /home/marcel/CLionProjects/Tarstats++/main.cpp || cmake_object_order_depends_target_Tarstats__
   DEP_FILE = CMakeFiles/Tarstats__.dir/main.cpp.o.d
-  FLAGS = -g -std=gnu++20
+  FLAGS = -Wall -Wextra -Werror -std=c++20 -g -std=gnu++20
   OBJECT_DIR = CMakeFiles/Tarstats__.dir
   OBJECT_FILE_DIR = CMakeFiles/Tarstats__.dir
 
@@ -87,7 +87,7 @@ build CMakeFiles/Tarstats__.dir/main.cpp.o: CXX_COMPILER__Tarstats___Debug /home
 # Link the executable Tarstats__
 
 build Tarstats__: CXX_EXECUTABLE_LINKER__Tarstats___Debug CMakeFiles/Tarstats__.dir/main.cpp.o
-  FLAGS = -g
+  FLAGS = -Wall -Wextra -Werror -std=c++20 -g
   OBJECT_DIR = CMakeFiles/Tarstats__.dir
   POST_BUILD = :
   PRE_LINK = :

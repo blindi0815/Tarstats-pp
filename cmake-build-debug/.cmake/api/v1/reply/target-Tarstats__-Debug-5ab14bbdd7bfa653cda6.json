@@ -24,7 +24,7 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 6,
+				"line" : 7,
 				"parent" : 0
 			}
 		]
@@ -35,7 +35,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-g"
+					"fragment" : " -Wall -Wextra -Werror -std=c++20 -g"
 				},
 				{
 					"fragment" : "-std=gnu++20"
@@ -62,7 +62,7 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-g",
+				"fragment" : "-Wall -Wextra -Werror -std=c++20 -g",
 				"role" : "flags"
 			},
 			{
