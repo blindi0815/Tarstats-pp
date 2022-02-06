@@ -57,19 +57,19 @@ int main(int argc, char** argv) {
 
 
     // Read size of the next file
-    long double filesize{};
+    long double itemsize{};
     int power = 10;
     std::string asciifilesize(&headbuffer[124], 11);
     for (auto i : asciifilesize) {
         int value = i - '0';
-        filesize += value * std::pow(8,power);
+        itemsize += value * std::pow(8, power);
         power--;
     }
 
     //Printing to stdout
     std::cout << itemname << std::endl;
     std::cout << itemtype << std::endl;
-    std::cout << filesize << " Bytes" << std::endl;
+    std::cout << itemsize << " Bytes" << std::endl;
 
     return 0;
 }
