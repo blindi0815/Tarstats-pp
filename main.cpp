@@ -23,11 +23,11 @@ int main(int argc, char** argv) {
         std::cout << "Error opening file" << std::endl;
 
     // Tar spec is working with continous 512 byte size blocks. Header is 512 bytes.
-    int headersize = 512;
+    int buffersize = 512;
 
     //Read header of first item in tar archive
-    char* headbuffer = new char[headersize];
-    datei.read(headbuffer, headersize);
+    char* headbuffer = new char[buffersize];
+    datei.read(headbuffer, buffersize);
 
     // Read name of the next item
     std::string itemname(&headbuffer[0], 100);
@@ -66,10 +66,54 @@ int main(int argc, char** argv) {
         power--;
     }
 
+    // uint64_t locationtonextfile{};
+    /* find out how often 512 bytes have to be read until the next header begins. Itemcontents are filled with '0' to
+     * fill the next 512 byte block
+     */
+    int filereadcount = (itemsize / buffersize) + 1;
+    char* itembuffer = new char[buffersize];
+
+    while (filereadcount >= 0){
+        datei.read(itembuffer, buffersize);
+        filereadcount--;
+    }
+    delete[] itembuffer;
+    delete[] headbuffer;
+
+
+    headbuffer = new char[buffersize];
+    datei.read(headbuffer, buffersize);
+    std::string itemname2 (&headbuffer[0], 100);
+    std::erase(itemname2, '\0');
+
+    std::string itemtype2{};
+    switch (headbuffer[156]){
+        case '0': case '\0':
+            itemtype2 = "FILE";
+            break;
+        case '1':
+            itemtype2 = "HARDLINK";
+            break;
+        case '2':
+            itemtype2 = "SYMLINK";
+            break;
+        case '5':
+            itemtype2 = "DIRECTORY";
+            break;
+        default:
+            itemtype2 = "OTHER";
+            break;
+    }
+
+
     //Printing to stdout
     std::cout << itemname << std::endl;
     std::cout << itemtype << std::endl;
     std::cout << itemsize << " Bytes" << std::endl;
+
+    std::cout << itemname2 << std::endl;
+    std::cout << itemtype2 << std::endl;
+
 
     return 0;
 }
