@@ -115,6 +115,5 @@ int main(int argc, char** argv) {
     std::cout << itemname2 << std::endl;
     std::cout << itemtype2 << std::endl;
 
-
     return 0;
 }
