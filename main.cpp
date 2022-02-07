@@ -111,6 +111,7 @@ int main(int argc, char** argv) {
     std::cout << itemtype << std::endl;
     std::cout << itemsize << " Bytes" << std::endl;
 
+    //Second item
     std::cout << itemname2 << std::endl;
     std::cout << itemtype2 << std::endl;
 
