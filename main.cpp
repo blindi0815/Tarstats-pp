@@ -56,17 +56,27 @@ std::string getitemtype(char &n) {
 
 int main(int argc, char** argv) {
 
-    // set general variables
+    // GENERAL VARIABLES
+    //count the types of all items
     std::map <std::string, uint> typecount{
         {"FILE", 0}, {"HARDLINK", 0}, {"SYMLINK", 0},
         {"DIRECTORY", 0}, {"OTHER", 0}
-    }; // count the types of all items.
+    };
 
-    uint64_t sizeof_allfiles{};
+    uint64_t sizeof_allfiles{}; // total size of all files in the archive
+    std::string helptext
+    {"usage: tarstats-pp [-h] [-j] [-f] tarfile.\n"
+     "A tool to calculate basics statistics on tarball. Shamelessly inspired by github.com/isotopp/tarstats!\n\n"
+     "mandatory argument:\n"
+     "tarfile   a tarfile to calculate stats on\n\n"
+     "optional arguments\n"
+     "-h        this helptext\n"
+     "-j        stats in JSON format printed to stdout\n"
+     "-f        print stats to file <tarfilename>.txt or .json if -j invoked"};
 
     // Trivial check for arguments. Errorprone and has to be changed.
     if (argc < 2) {
-        std::cout << "Please enter filename" << std::endl;
+        std::cout << helptext << '\n';
         return 9;
     }
     // Getting name from argument lists on startup. Trivial and errorprone. Placeholder for now.
@@ -74,8 +84,10 @@ int main(int argc, char** argv) {
 
     //Open tar File.
     std::ifstream file(archiveFilename, std::ios::binary);
-    if(!file)
+    if(!file) {
         std::cout << "Error opening file" << std::endl;
+        std::cout << helptext << '\n';
+    }
 
     // Tar spec is working with continous 512 byte size blocks. Header is 512 bytes.
     int buffersize = 512;
@@ -108,11 +120,6 @@ int main(int argc, char** argv) {
     }
 
     std::cout << sizeof_allfiles << std::endl;
-
-
-
-
-
 
     return 0;
 }
