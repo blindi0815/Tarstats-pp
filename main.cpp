@@ -4,6 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <map>
+#include <filesystem>
 
 // checks if a 512byte block consist only of 0 or \0
 bool eof (const char* buf) {
@@ -40,15 +41,15 @@ std::string getitemtype(char &n) {
     // read itemtype
     switch (n){
         case '0': case '\0':
-            return "FILE";
+            return "FILE        ";
         case '1':
-            return "HARDLINK";
+            return "HARDLINK    ";
         case '2':
-            return "SYMLINK";
+            return "SYMLINK     ";
         case '5':
-            return "DIRECTORY";
+            return "DIRECTORY   ";
         default:
-            return "OTHER";
+            return "OTHER       ";
     }
 }
 
@@ -59,8 +60,8 @@ int main(int argc, char** argv) {
     // GENERAL VARIABLES
     //count the types of all items
     std::map <std::string, uint> typecount{
-        {"FILE", 0}, {"HARDLINK", 0}, {"SYMLINK", 0},
-        {"DIRECTORY", 0}, {"OTHER", 0}
+        {"FILE        ", 0}, {"HARDLINK    ", 0}, {"SYMLINK     ", 0},
+        {"DIRECTORY   ", 0}, {"OTHER       ", 0}
     };
 
     uint64_t sizeof_allfiles{}; // total size of all files in the archive
@@ -118,8 +119,12 @@ int main(int argc, char** argv) {
         // empty the headerbuffer
         delete[] headbuffer;
     }
-
-    std::cout << sizeof_allfiles << std::endl;
+    file.close();
+    std::cout << "Archive size:         " << std::filesystem::file_size(archiveFilename) << " Bytes"<< '\n';
+    std::cout << "Size of all items:    " << sizeof_allfiles << " Bytes" << '\n' << '\n';
+    for (auto i : typecount) {
+        std::cout << i.first <<":      " << i.second << '\n';
+    }
 
     return 0;
 }
