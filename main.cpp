@@ -88,6 +88,7 @@ int main(int argc, char** argv) {
     if(!file) {
         std::cout << "Error opening file" << std::endl;
         std::cout << helptext << '\n';
+        return 9;
     }
 
     // Tar spec is working with continous 512 byte size blocks. Header is 512 bytes.
