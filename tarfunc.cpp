@@ -7,6 +7,8 @@
 #include "tarconst.h"
 #include <string>
 #include <cmath>
+#include <iostream>
+#include <map>
 
 // checks if a valid modern tar file - ustar
 bool tar::validTar(std::istream &file) {
@@ -56,5 +58,13 @@ std::string tar::getitemtype(char &n) {
             return tarconstant::typeDir;
         default:
             return tarconstant::typeOther;
+    }
+}
+
+void tar::consolestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall) {
+    std::cout << "Archive size:         " << tarfilesize << " Bytes"<< '\n';
+    std::cout << "Size of all items:    " << sizeofall << " Bytes" << '\n' << '\n';
+    for (auto &i : typecount) {
+        std::cout << i.first <<": " << i.second << '\n';
     }
 }

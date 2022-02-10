@@ -4,6 +4,8 @@
  */
 
 #include <fstream>
+#include <map>
+#include <string>
 
 
 #ifndef TARSTATS___TARFUNC_H
@@ -20,6 +22,8 @@ namespace tar {
 
 // gets type of an item
     std::string getitemtype(char &n);
+//
+    void consolestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall);
 }
 
 

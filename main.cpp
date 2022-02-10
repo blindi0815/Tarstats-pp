@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
 
     // GENERAL VARIABLES
     //count the types of all items
-    std::map<std::string, uint> typecount{
+    std::map<std::string, uintmax_t> typecount{
         {tarconstant::typeFile, 0}, {tarconstant::typeDir, 0}, {tarconstant::typeSym, 0},
         {tarconstant::typeHard, 0}, {tarconstant::typeOther, 0}
     };
@@ -29,6 +29,10 @@ int main(int argc, char** argv) {
     }
     // Getting name from argument lists on startup. Trivial and errorprone. Placeholder for now.
     std::string archiveFilename(argv[1]);
+
+    for (int i = 0; i < argc; i++){
+        std::cout << argv[i] << '\n';
+    }
 
     //Open tar File.
     std::ifstream file(archiveFilename, std::ios::binary);
@@ -70,11 +74,9 @@ int main(int argc, char** argv) {
         delete[] headbuffer;
     }
     file.close();
-    std::cout << "Archive size:         " << std::filesystem::file_size(archiveFilename) << " Bytes"<< '\n';
-    std::cout << "Size of all items:    " << sizeof_allfiles << " Bytes" << '\n' << '\n';
-    for (auto &i : typecount) {
-        std::cout << i.first <<": " << i.second << '\n';
-    }
+
+    tar::consolestats(typecount, std::filesystem::file_size(archiveFilename), sizeof_allfiles);
+
 
     return 0;
 }
