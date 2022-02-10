@@ -6,6 +6,24 @@
 #include <map>
 #include <filesystem>
 
+// global itemtype definition
+std::string const typeFile = "FILES";
+std::string const typeDir = "DIRECTORIES";
+std::string const typeSym = "SYMLINKS";
+std::string const typeHard = "HARDLINKS";
+std::string const typeOther = "OTHER";
+
+// checks if a valid modern tar file - ustar
+bool validTar (std::istream & file) {
+    file.seekg(257);
+    char* buffer = new char [6];
+    file.read(buffer, 6);
+    std::string magicfield(&buffer[0], 5);
+    delete[] buffer;
+    file.seekg(0);
+    return magicfield == "ustar" ? true: false;
+}
+
 // checks if a 512byte block consist only of 0 or \0
 bool eof (const char* buf) {
     std::string test(&buf[0]);
@@ -14,13 +32,6 @@ bool eof (const char* buf) {
     if (test.size() == 0)
         return 1;
     return 0;
-}
-
-// gets name of an item (for test purposes)
-std::string getitemname (const char* buf) {
-    std::string name (&buf[0], 100);
-    std::erase(name, '\0');
-    return name;
 }
 
 // gets size of an item in bytes. assumes octal encoding.
@@ -41,15 +52,15 @@ std::string getitemtype(char &n) {
     // read itemtype
     switch (n){
         case '0': case '\0':
-            return "FILE        ";
+            return typeFile;
         case '1':
-            return "HARDLINK    ";
+            return typeHard;
         case '2':
-            return "SYMLINK     ";
+            return typeSym;
         case '5':
-            return "DIRECTORY   ";
+            return typeDir;
         default:
-            return "OTHER       ";
+            return typeOther;
     }
 }
 
@@ -59,12 +70,13 @@ int main(int argc, char** argv) {
 
     // GENERAL VARIABLES
     //count the types of all items
-    std::map <std::string, uint> typecount{
-        {"FILE        ", 0}, {"HARDLINK    ", 0}, {"SYMLINK     ", 0},
-        {"DIRECTORY   ", 0}, {"OTHER       ", 0}
+    std::map<std::string, uint> typecount{
+        {typeFile, 0}, {typeDir, 0}, {typeSym, 0},
+        {typeHard, 0}, {typeOther, 0}
     };
 
     uint64_t sizeof_allfiles{}; // total size of all files in the archive
+
     std::string helptext
     {"usage: tarstats-pp [-h] [-j] [-f] tarfile.\n"
      "A tool to calculate basics statistics on tarball. Shamelessly inspired by github.com/isotopp/tarstats!\n\n"
@@ -86,8 +98,13 @@ int main(int argc, char** argv) {
     //Open tar File.
     std::ifstream file(archiveFilename, std::ios::binary);
     if(!file) {
-        std::cout << "Error opening file" << std::endl;
+        std::cout << "Error opening file!" << '\n' << '\n';
         std::cout << helptext << '\n';
+        return 9;
+    }
+
+    if (!validTar(file)) {
+        std::cout << archiveFilename << " is not a valid tar file for tarstats-pp" << '\n';
         return 9;
     }
 
@@ -123,8 +140,8 @@ int main(int argc, char** argv) {
     file.close();
     std::cout << "Archive size:         " << std::filesystem::file_size(archiveFilename) << " Bytes"<< '\n';
     std::cout << "Size of all items:    " << sizeof_allfiles << " Bytes" << '\n' << '\n';
-    for (auto i : typecount) {
-        std::cout << i.first <<":      " << i.second << '\n';
+    for (auto &i : typecount) {
+        std::cout << i.first <<": " << i.second << '\n';
     }
 
     return 0;
