@@ -61,10 +61,30 @@ std::string tar::getitemtype(char &n) {
     }
 }
 
+// writes stats to console in default style
 void tar::consolestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall) {
     std::cout << "Archive size:         " << tarfilesize << " Bytes"<< '\n';
     std::cout << "Size of all items:    " << sizeofall << " Bytes" << '\n' << '\n';
     for (auto &i : typecount) {
         std::cout << i.first <<": " << i.second << '\n';
     }
+}
+
+// writes default console output to txt file
+void tar::txtfilestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall,
+                   std::string archiveName) {
+    std::string txtname = archiveName + ".txt";
+    std::ofstream txtfile(txtname);
+    txtfile << "Archive size:         " << tarfilesize << " Bytes"<< std::endl;
+    txtfile << "Size of all items:    " << sizeofall << " Bytes" << std::endl << std::endl;
+    for (auto &i : typecount) {
+        txtfile << i.first <<": " << i.second << std::endl;
+    }
+    txtfile.close();
+    std::cout << "Stats written to " << txtname << '\n' << '\n';
+}
+
+// print out helpertext
+void tar::printhelp(){
+    std::cout << tarconstant::helptext << '\n' << '\n';
 }

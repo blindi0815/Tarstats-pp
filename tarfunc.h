@@ -6,6 +6,7 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include "tarconst.h"
 
 
 #ifndef TARSTATS___TARFUNC_H
@@ -22,8 +23,15 @@ namespace tar {
 
 // gets type of an item
     std::string getitemtype(char &n);
-//
+
+// to write stats to console in default style
     void consolestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall);
+
+// to write default console output to txt file
+    void txtfilestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall,
+                       std::string archiveName);
+// print out helpertext
+    void printhelp();
 }
 
 
