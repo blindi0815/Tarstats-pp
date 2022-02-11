@@ -9,6 +9,7 @@
 #include <filesystem>
 #include "tarconst.h"
 #include "tarfunc.h"
+#include "zlib.h"
 
 int main(int argc, char** argv) {
     // Trivial check for arguments.
@@ -26,6 +27,7 @@ int main(int argc, char** argv) {
     }
     bool toFile = false;
     bool toJSON = false;
+    bool g = false;
 
     std::vector<std::string> archiveFilename {};
     for (auto i : cmdparam) {
@@ -44,6 +46,9 @@ int main(int argc, char** argv) {
                 case 'h':
                     tar::printhelp();
                     return 9;
+                case 'g':
+                    g = true;
+                    break;
                 case '-':
                     break;
                 default:
@@ -53,6 +58,17 @@ int main(int argc, char** argv) {
             }
         }
         }
+    }
+
+    if (g) {
+        std::ifstream test("test4.tar.gz", std::ios::binary);
+        char x;
+        test.seekg(1);
+        test.read((&x), 1);
+        test.close();
+        if (x == '\213')
+            std::cout << "success" << std::endl;
+        return 0;
     }
 
     for (auto &archiveName : archiveFilename) {
