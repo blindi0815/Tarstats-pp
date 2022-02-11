@@ -68,6 +68,12 @@ int main(int argc, char** argv) {
         test.close();
         if (x == '\213')
             std::cout << "success" << std::endl;
+        gzFile gzIn = gzopen("test4.tar.gz", "rb");
+        gzbuffer(gzIn, 512);
+        char* testbuf = new char[512];
+        gzread(gzIn, testbuf, 512);
+        std::string teststr (&testbuf[0], 100);
+        std::cout << teststr << '\n';
         return 0;
     }
 
