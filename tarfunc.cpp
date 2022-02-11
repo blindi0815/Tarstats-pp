@@ -9,6 +9,7 @@
 #include <cmath>
 #include <iostream>
 #include <map>
+#include "zlib.h"
 
 // checks if a valid modern tar file - ustar
 bool tar::validTar(std::istream &file) {
@@ -18,7 +19,20 @@ bool tar::validTar(std::istream &file) {
     std::string magicfield(&buffer[0], 5);
     delete[] buffer;
     file.seekg(0);
-    return magicfield == tarconstant::mgcfield ? true: false;
+    return magicfield == tarconstant::mgctar ? true : false;
+}
+
+// check if tar in gzfile is valid
+bool tar::gzValidTar(std::string filename) {
+    auto gzIn = ::gzopen(filename.c_str(), "r");
+    gzbuffer(gzIn, 8192);
+    char headbuffer[512] = {0};
+    gzread( gzIn, headbuffer, sizeof(headbuffer));
+    std::string magicfield (&headbuffer[tarconstant::mgcfieldByte.first], 5);
+    gzclose(gzIn);
+    if (magicfield == tarconstant::mgctar)
+        return true;
+    return false;
 }
 
 // checks if a 512byte block consist only of 0 or \0
@@ -87,4 +101,29 @@ void tar::txtfilestats (std::map<std::string, uintmax_t> &typecount, uintmax_t t
 // print out helpertext
 void tar::printhelp(){
     std::cout << tarconstant::helptext << '\n' << '\n';
+}
+
+// check if valid GNU ZIP file via magic byte
+bool tar::validGzip(std::string &filename) {
+    std::ifstream file(filename, std::ios::binary);
+    char byte;
+    file.seekg(1);
+    file.read((&byte), 1);
+    file.close();
+    if (byte == tarconstant::mgcgzip)
+        return true;
+
+    return false;
+}
+
+// check if file can be opened
+bool tar::fileOpen(std::string &filename) {
+    std::ifstream file(filename);
+    if(file) {
+        file.close();
+        return true;
+    }
+
+    file.close();
+    return false;
 }

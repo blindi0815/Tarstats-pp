@@ -19,15 +19,23 @@ int main(int argc, char** argv) {
     }
 
     // GENERAL VARIABLES
+    bool toFile = false;
+    bool toJSON = false;
+    uintmax_t global_sizeofall{};
+    std::map<std::string, uintmax_t> globaltypecount{
+            {tarconstant::typeFile,  0},
+            {tarconstant::typeDir,   0},
+            {tarconstant::typeSym,   0},
+            {tarconstant::typeHard,  0},
+            {tarconstant::typeOther, 0}
+    };
 
     // Load command line parameters into vector, read them and set variables
     std::vector<std::string> cmdparam{};
     for (int i = 1; i < argc; i++){
         cmdparam.emplace_back(argv[i]);
     }
-    bool toFile = false;
-    bool toJSON = false;
-    bool g = false;
+
 
     std::vector<std::string> archiveFilename {};
     for (auto i : cmdparam) {
@@ -46,9 +54,6 @@ int main(int argc, char** argv) {
                 case 'h':
                     tar::printhelp();
                     return 9;
-                case 'g':
-                    g = true;
-                    break;
                 case '-':
                     break;
                 default:
@@ -60,79 +65,116 @@ int main(int argc, char** argv) {
         }
     }
 
-    if (g) {
-        std::ifstream test("test4.tar.gz", std::ios::binary);
-        char x;
-        test.seekg(1);
-        test.read((&x), 1);
-        test.close();
-        if (x == '\213')
-            std::cout << "success" << std::endl;
-        gzFile gzIn = gzopen("test4.tar.gz", "rb");
-        gzbuffer(gzIn, 512);
-        char* testbuf = new char[512];
-        gzread(gzIn, testbuf, 512);
-        std::string teststr (&testbuf[0], 100);
-        std::cout << teststr << '\n';
-        return 0;
-    }
-
     for (auto &archiveName : archiveFilename) {
-        //count the types of all items
-        std::map<std::string, uintmax_t> typecount{
-                {tarconstant::typeFile, 0}, {tarconstant::typeDir, 0}, {tarconstant::typeSym, 0},
-                {tarconstant::typeHard, 0}, {tarconstant::typeOther, 0}
-        };
 
-        uint64_t sizeof_allfiles{}; // total size of all files in the archive
-
-        //Open tar File.
-        std::ifstream file(archiveName, std::ios::binary);
-        if (!file) {
+        if (!tar::fileOpen(archiveName)) {
             std::cout << "Error opening file " << archiveName << "!" << '\n' << '\n';
             tar::printhelp();
             return 9;
         }
 
-        if (!tar::validTar(file)) {
-            std::cout << "!!!!!!!" << '\n';
-            std::cout << archiveName << " is not a valid tar file for tarstats-pp" << '\n';
-            std::cout << "!!!!!!!" << '\n' << '\n';
-        }
-        else {
-            while (file) {
-                //Read header of next item in tar archive
-                char *headbuffer = new char[tarconstant::blocksize];
-                file.read(headbuffer, tarconstant::blocksize);
+        //count the types of all items
+        std::map<std::string, uintmax_t> typecount{
+                {tarconstant::typeFile,  0},
+                {tarconstant::typeDir,   0},
+                {tarconstant::typeSym,   0},
+                {tarconstant::typeHard,  0},
+                {tarconstant::typeOther, 0}
+        };
 
-                // tar file ends with 2 512byte blocks of 0. As no block should ever be 0 unless at the end, we check only once.
-                if (tar::eof(headbuffer)) {
-                    break;
-                }
+        uint64_t sizeof_allfiles{}; // total size of all files in the archive
+        bool isGz = tar::validGzip(archiveName);
 
-                // Read type of item
-                std::string itemtype = tar::getitemtype(headbuffer[tarconstant::itemtypeByte]);
-                typecount[itemtype] += 1;
-
-                // read itemsize and add to total
-                sizeof_allfiles += tar::getitemsize(headbuffer);
-
-                // ignore file content. we want to get to the next header. item types != FILE have no content blocks (0 byte)
-                if (tar::getitemsize(headbuffer) != 0) {
-                    file.ignore((tar::getitemsize(headbuffer) / tarconstant::blocksize)
-                                * tarconstant::blocksize + tarconstant::blocksize);
-                }
-
-                // empty the headerbuffer
-                delete[] headbuffer;
+        if (isGz) {
+            if (!tar::gzValidTar(archiveName)) {
+                std::cout << "!!!!!!!" << '\n';
+                std::cout << archiveName << " is not a valid tar file for tarstats-pp" << '\n';
+                std::cout << "!!!!!!!" << '\n' << '\n';
             }
-            file.close();
+            else {
+                gzFile gzIn = gzopen(archiveName.c_str(), "r");
+                gzbuffer(gzIn, 8192);
+                while (!gzeof(gzIn)) {
 
-            std::cout << toJSON << '\n';
-            tar::consolestats(typecount, std::filesystem::file_size(archiveName), sizeof_allfiles);
-            if (toFile) {
-                tar::txtfilestats(typecount, std::filesystem::file_size(archiveName), sizeof_allfiles,
-                                  archiveName);
+                    char headbuffer[512] = {0};
+                    uint64_t unzippedbytes = gzread(gzIn, headbuffer, sizeof(headbuffer));
+                    if (unzippedbytes == 0)
+                        break;
+
+                    // tar file ends with 2 512byte blocks of 0. As no block should ever be 0 unless at the end, we check only once.
+                    if (tar::eof(headbuffer)) {
+                        break;
+                    }
+
+                    // Read type of item
+                    std::string itemtype = tar::getitemtype(headbuffer[tarconstant::itemtypeByte]);
+                    typecount[itemtype] += 1;
+
+                    // read itemsize and add to total
+                    sizeof_allfiles += tar::getitemsize(headbuffer);
+
+                    // ignore file content. we want to get to the next header. item types != FILE have no content blocks (0 byte)
+                    uintmax_t help = (tar::getitemsize(headbuffer) / tarconstant::blocksize)
+                            * tarconstant::blocksize + tarconstant::blocksize;
+                    char dump[help] = {0};
+
+                    if (tar::getitemsize(headbuffer) != 0) {
+                        gzread(gzIn, dump, (tar::getitemsize(headbuffer) / tarconstant::blocksize)
+                                              * tarconstant::blocksize + tarconstant::blocksize);
+                    }
+                }
+                gzclose(gzIn);
+                tar::consolestats(typecount, std::filesystem::file_size(archiveName), sizeof_allfiles);
+                if (toFile) {
+                    tar::txtfilestats(typecount, std::filesystem::file_size(archiveName),
+                                      sizeof_allfiles, archiveName);
+                }
+            }
+        }
+
+        if (!isGz) {
+            //Open tar File.
+            std::ifstream file(archiveName, std::ios::binary);
+
+            if (!tar::validTar(file)) {
+                std::cout << "!!!!!!!" << '\n';
+                std::cout << archiveName << " is not a valid tar file for tarstats-pp" << '\n';
+                std::cout << "!!!!!!!" << '\n' << '\n';
+            } else {
+                while (file) {
+                    //Read header of next item in tar archive
+                    char *headbuffer = new char[tarconstant::blocksize];
+                    file.read(headbuffer, tarconstant::blocksize);
+
+                    // tar file ends with 2 512byte blocks of 0. As no block should ever be 0 unless at the end, we check only once.
+                    if (tar::eof(headbuffer)) {
+                        break;
+                    }
+
+                    // Read type of item
+                    std::string itemtype = tar::getitemtype(headbuffer[tarconstant::itemtypeByte]);
+                    typecount[itemtype] += 1;
+
+                    // read itemsize and add to total
+                    sizeof_allfiles += tar::getitemsize(headbuffer);
+
+                    // ignore file content. we want to get to the next header. item types != FILE have no content blocks (0 byte)
+                    if (tar::getitemsize(headbuffer) != 0) {
+                        file.ignore((tar::getitemsize(headbuffer) / tarconstant::blocksize)
+                                    * tarconstant::blocksize + tarconstant::blocksize);
+                    }
+
+                    // empty the headerbuffer
+                    delete[] headbuffer;
+                }
+                file.close();
+
+                std::cout << toJSON << '\n';
+                tar::consolestats(typecount, std::filesystem::file_size(archiveName), sizeof_allfiles);
+                if (toFile) {
+                    tar::txtfilestats(typecount, std::filesystem::file_size(archiveName), sizeof_allfiles,
+                                      archiveName);
+                }
             }
         }
     }

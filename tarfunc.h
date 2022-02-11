@@ -15,6 +15,9 @@ namespace tar {
 // checks if a valid modern tar file - ustar
     bool validTar(std::istream &file);
 
+// check if tar in gzfile is valid
+    bool gzValidTar(std::string filename);
+
 // checks if a 512byte block consist only of 0 or \0
     bool eof(const char *buf);
 
@@ -25,13 +28,19 @@ namespace tar {
     std::string getitemtype(char &n);
 
 // to write stats to console in default style
-    void consolestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall);
+    void consolestats(std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall);
 
 // to write default console output to txt file
-    void txtfilestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall,
-                       std::string archiveName);
+    void txtfilestats(std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall,
+                      std::string archiveName);
+
 // print out helpertext
     void printhelp();
+
+// check if valid GNU ZIP file via magic byte.
+    bool validGzip(std::string &filename);
+// check if file can be opened
+    bool fileOpen(std::string &filename);
 }
 
 

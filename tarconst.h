@@ -17,8 +17,9 @@ namespace tarconstant {
     inline std::string const typeHard = "HARDLINKS";
     inline std::string const typeOther = "OTHER";
 
-    // valid magicfield
-    inline std::string const mgcfield = "ustar";
+    // valid magicfield tar
+    inline std::string const mgctar = "ustar";
+    inline constexpr char mgcgzip = '\213';
 
     // Byte offsets
     inline uint16_t blocksize = 512; // tar consists of continuous 512 Byte data blocks
