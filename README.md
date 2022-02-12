@@ -6,6 +6,9 @@ This is a little command line tool to provide statistics on a GNU tar file. It i
 
 The project is inspired by https://github.com/isotopp/tarstats by @github/isotopp and the Twitter thread https://twitter.com/isotopp/status/1489549907841146882
 
+### Limitations
+This tool works on standard .tar files as well on tarfiles compressed by GNU zip. Other compression methods are not supported. This does not yet parse tarballs inside a tarball.
+
 ## Prerequisites
 Building this requires a version of zlib (http://zlib.net) on the target system. Common Linux distributions include zlib, yet the dev portions might be missing and have to installed first. In case of Ubuntu `zlib1g-dev`. Consult the provider of the distribution of your choice.
 
