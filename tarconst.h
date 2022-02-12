@@ -10,6 +10,9 @@
 #include <utility>
 
 namespace tarconstant {
+    //global version
+    inline std::string const version = "v0.9-beta.2";
+
     // global itemtype definition
     inline std::string const typeFile = "FILES";
     inline std::string const typeDir = "DIRECTORIES";
@@ -35,10 +38,11 @@ namespace tarconstant {
              "optional arguments\n"
              "-h        this helptext\n"
              "-j        stats in JSON format printed to stdout\n"
-             "-f        print stats to file <tarfilename>.txt or .json if -j invoked\n\n"
+             "-f        print stats to file <tarfilename>.txt or .json + global.json if -j invoked\n\n"
              "Find more information as well as full source at github.com/blindi0815/Tarstats-pp."
              "This software is as is under a GPL 3.0 license.\n\n"
-             "Written by Marcel Nowicki - github.com/blindi0815"};
+             "Written by Marcel Nowicki - github.com/blindi0815/Tarstats_pp\n\n"
+             "Version information: " + tarconstant::version + "\n"};
 }
 
 #endif //TARSTATS___TARCONST_H
