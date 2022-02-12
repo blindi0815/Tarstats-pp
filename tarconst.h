@@ -11,7 +11,7 @@
 
 namespace tarconstant {
     //global version
-    inline std::string const version = "v1.0-Release";
+    inline std::string const version = "v1.0.1-FixRelease";
 
     // global itemtype definition
     inline std::string const typeFile = "FILES";
@@ -31,7 +31,7 @@ namespace tarconstant {
     inline std::pair<uint8_t , uint8_t> itemoctlnByte {124,11};    // at offset 124 because first byte
                                                                         // marks octal or base256 coding
     inline std::string helptext
-            {"usage: tarstats-pp [-h] [-j] [-f] tarfile.\n"
+            {"usage: tarstats-pp [-h] [-j] [-f] tarfile [tarfile...]\n"
              "A tool to calculate basics statistics on tarball. Shamelessly inspired by github.com/isotopp/tarstats!\n\n"
              "mandatory argument:\n"
              "tarfile   a tarfile to calculate stats on\n\n"

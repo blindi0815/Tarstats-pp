@@ -1,7 +1,7 @@
 # Tarstats-++
 Tool to provide stats of a tarball.
 http://github.com/blindi815/Tarstats-pp
-Version: v1.0-Release
+Version: v1.0.1-FixRelease
 
 ## General information
 This is a little command line tool to provide statistics on a GNU tar file. It is a personal project to further self study programming using C++.
@@ -24,7 +24,7 @@ sudo cmake --install .
 ## Usage
 ```
 $ tarstats_pp
-usage: tarstats-pp [-h] [-j] [-f] tarfile.
+usage: tarstats-pp [-h] [-j] [-f] tarfile [tarfile...]
 A tool to calculate basics statistics on tarball. Shamelessly inspired by github.com/isotopp/tarstats!
 
 mandatory argument:
