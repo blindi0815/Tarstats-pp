@@ -21,7 +21,8 @@ int main(int argc, char** argv) {
     // GENERAL VARIABLES
     bool toFile = false;
     bool toJSON = false;
-    uintmax_t global_sizeofall{};
+    uintmax_t global_sizeofallitems{};
+    uintmax_t global_sizeofallfiles{};
     std::map<std::string, uintmax_t> globaltypecount{
             {tarconstant::typeFile,  0},
             {tarconstant::typeDir,   0},
@@ -36,10 +37,14 @@ int main(int argc, char** argv) {
         cmdparam.emplace_back(argv[i]);
     }
 
-
     std::vector<std::string> archiveFilename {};
     for (auto i : cmdparam) {
         if (i[0] != '-' && i.size() > 1) {
+            if(!tar::fileOpen(i)){
+                tar::printhelp();
+                std::cout << "Error opening file " << i <<" - closing down" << '\n';
+                return 9;
+            }
             archiveFilename.push_back(i);
         }
         if (i[0] == '-') {
@@ -65,14 +70,9 @@ int main(int argc, char** argv) {
         }
     }
 
+    // Core loop - opening files, check if compressed or not and parse accordingly.
+
     for (auto &archiveName : archiveFilename) {
-
-        if (!tar::fileOpen(archiveName)) {
-            std::cout << "Error opening file " << archiveName << "!" << '\n' << '\n';
-            tar::printhelp();
-            return 9;
-        }
-
         //count the types of all items
         std::map<std::string, uintmax_t> typecount{
                 {tarconstant::typeFile,  0},
@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
                 {tarconstant::typeOther, 0}
         };
 
-        uint64_t sizeof_allfiles{}; // total size of all files in the archive
+        uint64_t sizeof_allitems{}; // total size of all files in the archive
         bool isGz = tar::validGzip(archiveName);
 
         if (isGz) {
@@ -101,7 +101,8 @@ int main(int argc, char** argv) {
                     if (unzippedbytes == 0)
                         break;
 
-                    // tar file ends with 2 512byte blocks of 0. As no block should ever be 0 unless at the end, we check only once.
+                    // tar file ends with 2 512byte blocks of 0. As no block should ever be 0 unless at the end,
+                    // we check only once.
                     if (tar::eof(headbuffer)) {
                         break;
                     }
@@ -109,11 +110,13 @@ int main(int argc, char** argv) {
                     // Read type of item
                     std::string itemtype = tar::getitemtype(headbuffer[tarconstant::itemtypeByte]);
                     typecount[itemtype] += 1;
+                    globaltypecount[itemtype] += 1;
 
                     // read itemsize and add to total
-                    sizeof_allfiles += tar::getitemsize(headbuffer);
+                    sizeof_allitems += tar::getitemsize(headbuffer);
+                    global_sizeofallitems += tar::getitemsize(headbuffer);
 
-                    // ignore file content. we want to get to the next header. item types != FILE have no content blocks (0 byte)
+                    // ignore file content. we want to get to the next header. item types != FILE == 0 bytes
                     uintmax_t help = (tar::getitemsize(headbuffer) / tarconstant::blocksize)
                             * tarconstant::blocksize + tarconstant::blocksize;
                     char dump[help] = {0};
@@ -124,10 +127,12 @@ int main(int argc, char** argv) {
                     }
                 }
                 gzclose(gzIn);
-                tar::consolestats(typecount, std::filesystem::file_size(archiveName), sizeof_allfiles);
+                global_sizeofallfiles += std::filesystem::file_size(archiveName);
+                tar::consolestats(typecount, std::filesystem::file_size(archiveName),
+                                  sizeof_allitems);
                 if (toFile) {
                     tar::txtfilestats(typecount, std::filesystem::file_size(archiveName),
-                                      sizeof_allfiles, archiveName);
+                                      sizeof_allitems, archiveName);
                 }
             }
         }
@@ -154,9 +159,11 @@ int main(int argc, char** argv) {
                     // Read type of item
                     std::string itemtype = tar::getitemtype(headbuffer[tarconstant::itemtypeByte]);
                     typecount[itemtype] += 1;
+                    globaltypecount[itemtype] += 1;
 
                     // read itemsize and add to total
-                    sizeof_allfiles += tar::getitemsize(headbuffer);
+                    sizeof_allitems += tar::getitemsize(headbuffer);
+                    global_sizeofallitems += tar::getitemsize(headbuffer);
 
                     // ignore file content. we want to get to the next header. item types != FILE have no content blocks (0 byte)
                     if (tar::getitemsize(headbuffer) != 0) {
@@ -168,16 +175,18 @@ int main(int argc, char** argv) {
                     delete[] headbuffer;
                 }
                 file.close();
+                global_sizeofallfiles += std::filesystem::file_size(archiveName);
 
                 std::cout << toJSON << '\n';
-                tar::consolestats(typecount, std::filesystem::file_size(archiveName), sizeof_allfiles);
+                tar::consolestats(typecount, std::filesystem::file_size(archiveName),
+                                  sizeof_allitems);
                 if (toFile) {
-                    tar::txtfilestats(typecount, std::filesystem::file_size(archiveName), sizeof_allfiles,
-                                      archiveName);
+                    tar::txtfilestats(typecount, std::filesystem::file_size(archiveName),
+                                      sizeof_allitems, archiveName);
                 }
             }
         }
     }
-
+    tar::consoleglobalstats(globaltypecount, global_sizeofallfiles, global_sizeofallitems, archiveFilename);
     return 0;
 }

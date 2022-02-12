@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include "tarconst.h"
+#include <vector>
 
 
 #ifndef TARSTATS___TARFUNC_H
@@ -29,6 +30,10 @@ namespace tar {
 
 // to write stats to console in default style
     void consolestats(std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall);
+
+// to write global stats to stdout
+    void consoleglobalstats (std::map<std::string, uintmax_t> &typecount, uintmax_t itemfilesize,
+                             uintmax_t szfiles, std::vector<std::string> &files);
 
 // to write default console output to txt file
     void txtfilestats(std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall,

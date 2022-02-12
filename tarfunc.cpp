@@ -10,6 +10,7 @@
 #include <iostream>
 #include <map>
 #include "zlib.h"
+#include <vector>
 
 // checks if a valid modern tar file - ustar
 bool tar::validTar(std::istream &file) {
@@ -82,6 +83,19 @@ void tar::consolestats (std::map<std::string, uintmax_t> &typecount, uintmax_t t
     for (auto &i : typecount) {
         std::cout << i.first <<": " << i.second << '\n';
     }
+    std::cout << '\n' << '\n';
+}
+
+void tar::consoleglobalstats (std::map<std::string, uintmax_t> &typecount, uintmax_t filesize,
+                              uintmax_t itemsize, std::vector<std::string> &files) {
+    std::cout << "GLOBAL STATS" << '\n';
+    std::cout << "File amount:          " << files.size() << '\n';
+    std::cout << "Size of all archives: " << filesize << " Bytes" << '\n';
+    std::cout << "Size of all items:    " << itemsize << " Bytes" << '\n';
+    for (auto &i : typecount) {
+        std::cout << i.first <<": " << i.second << '\n';
+    }
+    std::cout << '\n' << '\n';
 }
 
 // writes default console output to txt file
@@ -123,7 +137,7 @@ bool tar::fileOpen(std::string &filename) {
         file.close();
         return true;
     }
-
     file.close();
     return false;
 }
+
