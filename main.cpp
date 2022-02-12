@@ -1,4 +1,6 @@
-/*
+/* Tool to provide stats of a tarball.
+ * http://github.com/blindi0815/Tarstats-pp
+ *
  * by Marcel Nowicki (github@epenis.de | github.com/blindi0815)
  */
 
