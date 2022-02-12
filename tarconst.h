@@ -11,7 +11,7 @@
 
 namespace tarconstant {
     //global version
-    inline std::string const version = "v0.9-beta.3";
+    inline std::string const version = "v1.0-Release";
 
     // global itemtype definition
     inline std::string const typeFile = "FILES";
