@@ -87,15 +87,50 @@ void tar::consolestats (std::map<std::string, uintmax_t> &typecount, uintmax_t t
 }
 
 void tar::consoleglobalstats (std::map<std::string, uintmax_t> &typecount, uintmax_t filesize,
-                              uintmax_t itemsize, std::vector<std::string> &files) {
+                              uintmax_t itemsize, size_t fileamount) {
     std::cout << "GLOBAL STATS" << '\n';
-    std::cout << "File amount:          " << files.size() << '\n';
+    std::cout << "File amount:          " << fileamount << '\n';
     std::cout << "Size of all archives: " << filesize << " Bytes" << '\n';
     std::cout << "Size of all items:    " << itemsize << " Bytes" << '\n';
     for (auto &i : typecount) {
         std::cout << i.first <<": " << i.second << '\n';
     }
     std::cout << '\n' << '\n';
+}
+
+void tar::jsonconsolestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall,
+                            std::string &filename, std::string type) {
+    std::cout << "{\"type\": \"" << type << "\", \"name\": \"" << filename << "\", \"size\": " << tarfilesize
+        << ", \"itemsize\": " << sizeofall << ", \"files\": " << typecount[tarconstant::typeFile]
+        << ", \"dir\": " << typecount[tarconstant::typeDir] << ", \"symlinks\": " << typecount[tarconstant::typeSym]
+        << ", \"hardlinks\": " << typecount[tarconstant::typeHard] << ", \"other\": "
+        << typecount[tarconstant::typeOther] << "}" << '\n' << '\n';
+}
+
+void tar::jsonfilestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall,
+                         std::string &filename, std::string type) {
+    std::string jsnname = filename + ".json";
+    std::ofstream jsonfile(jsnname);
+    jsonfile << "{\"type\": \"" << type << "\", \"name\": \"" << filename << "\", \"size\": " << tarfilesize
+             << ", \"itemsize\": " << sizeofall << ", \"files\": " << typecount[tarconstant::typeFile]
+             << ", \"dir\": " << typecount[tarconstant::typeDir] << ", \"symlinks\": " << typecount[tarconstant::typeSym]
+             << ", \"hardlinks\": " << typecount[tarconstant::typeHard] << ", \"other\": "
+             << typecount[tarconstant::typeOther] << "}" << '\n';
+    jsonfile.close();
+    std::cout << "Stats written to " << jsnname << '\n' << '\n';
+}
+
+void tar::jsonglobalfile (std::map<std::string, uintmax_t> &typecount, uintmax_t itemsize,
+                          uintmax_t filesize, size_t fileamount) {
+    std::ofstream jsonfile("global.json");
+    jsonfile << "{\"itemamount\": " << fileamount << ", \"itemsize\": " << itemsize << ", \"filesize\": "
+            << filesize << ", \"files\": " << typecount[tarconstant::typeFile]
+            << ", \"dir\": " << typecount[tarconstant::typeDir] << ", \"symlinks\": "
+            << typecount[tarconstant::typeSym] << ", \"hardlinks\": "
+            << typecount[tarconstant::typeHard] << ", \"other\": "
+            << typecount[tarconstant::typeOther] << "}" << '\n';
+    jsonfile.close();
+    std::cout << "Global stats written to global.json" << '\n' << '\n';
 }
 
 // writes default console output to txt file

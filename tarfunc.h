@@ -33,8 +33,16 @@ namespace tar {
 
 // to write global stats to stdout
     void consoleglobalstats (std::map<std::string, uintmax_t> &typecount, uintmax_t itemfilesize,
-                             uintmax_t szfiles, std::vector<std::string> &files);
-
+                             uintmax_t szfiles, size_t fileamount);
+// to write JSON stats of a file to stdout
+    void jsonconsolestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall,
+                                std::string &filename, std::string type);
+// to write JSON stats to file
+    void jsonfilestats (std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall,
+                             std::string &filename, std::string type);
+// to write global stats to JSON file
+   void jsonglobalfile (std::map<std::string, uintmax_t> &typecount, uintmax_t itemsize,
+                        uintmax_t filesize, size_t fileamount);
 // to write default console output to txt file
     void txtfilestats(std::map<std::string, uintmax_t> &typecount, uintmax_t tarfilesize, uintmax_t sizeofall,
                       std::string archiveName);

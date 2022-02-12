@@ -128,11 +128,24 @@ int main(int argc, char** argv) {
                 }
                 gzclose(gzIn);
                 global_sizeofallfiles += std::filesystem::file_size(archiveName);
-                tar::consolestats(typecount, std::filesystem::file_size(archiveName),
-                                  sizeof_allitems);
-                if (toFile) {
-                    tar::txtfilestats(typecount, std::filesystem::file_size(archiveName),
-                                      sizeof_allitems, archiveName);
+
+                if(toJSON){
+                    if(!toFile) {
+                        tar::jsonconsolestats(typecount, std::filesystem::file_size(archiveName),
+                                              sizeof_allitems, archiveName, "gzarchive");
+                    }
+                    if(toFile) {
+                        tar::jsonfilestats(typecount, std::filesystem::file_size(archiveName),
+                                              sizeof_allitems, archiveName, "gzarchive");
+                    }
+                }
+                if(!toJSON) {
+                    if(toFile)
+                        tar::txtfilestats(typecount, std::filesystem::file_size(archiveName),
+                                          sizeof_allitems, archiveName);
+                    if(!toFile)
+                        tar::consolestats(typecount, std::filesystem::file_size(archiveName),
+                                          sizeof_allitems);
                 }
             }
         }
@@ -177,16 +190,32 @@ int main(int argc, char** argv) {
                 file.close();
                 global_sizeofallfiles += std::filesystem::file_size(archiveName);
 
-                std::cout << toJSON << '\n';
-                tar::consolestats(typecount, std::filesystem::file_size(archiveName),
-                                  sizeof_allitems);
-                if (toFile) {
-                    tar::txtfilestats(typecount, std::filesystem::file_size(archiveName),
-                                      sizeof_allitems, archiveName);
+                if(toJSON){
+                    if(!toFile) {
+                        tar::jsonconsolestats(typecount, std::filesystem::file_size(archiveName),
+                                              sizeof_allitems, archiveName, "archive");
+                    }
+                    if(toFile) {
+                        tar::jsonfilestats(typecount, std::filesystem::file_size(archiveName),
+                                           sizeof_allitems, archiveName, "archive");
+                    }
+                }
+                if(!toJSON) {
+                    if(toFile)
+                        tar::txtfilestats(typecount, std::filesystem::file_size(archiveName),
+                                                sizeof_allitems, archiveName);
+                    if(!toFile)
+                        tar::consolestats(typecount, std::filesystem::file_size(archiveName),
+                                          sizeof_allitems);
                 }
             }
         }
     }
-    tar::consoleglobalstats(globaltypecount, global_sizeofallfiles, global_sizeofallitems, archiveFilename);
+    if(toFile && toJSON)
+        tar::jsonglobalfile(globaltypecount, global_sizeofallfiles,
+                            global_sizeofallitems, archiveFilename.size());
+
+    tar::consoleglobalstats(globaltypecount, global_sizeofallfiles,
+                            global_sizeofallitems, archiveFilename.size());
     return 0;
 }
